@@ -1,4 +1,5 @@
 <?php
+
 require_once 'modules/admin/models/RegistrarPlugin.php';
 
 class PluginSynergywholesale extends RegistrarPlugin
@@ -11,50 +12,50 @@ class PluginSynergywholesale extends RegistrarPlugin
 
     private $dnsTypes = ['A', 'AAAA',  'MX', 'CNAME', 'TXT'];
 
-    function getVariables()
+    public function getVariables()
     {
-        $variables = array(
-            lang('Plugin Name') => array (
-                                'type'          =>'hidden',
-                                'description'   =>lang('How CE sees this plugin (not to be confused with the Signup Name)'),
-                                'value'         =>lang('Synergy Wholesale')
-                               ),
-            lang('Reseller ID') => array(
-                                'type'          =>'text',
-                                'description'   =>lang('Enter your Reseller ID.'),
-                                'value'         =>''
-                               ),
-            lang('API Key')  => array(
-                                'type'          =>'password',
-                                'description'   =>lang('Enter your API Key.'),
-                                'value'         =>'',
-                                ),
-            lang('Supported Features')  => array(
-                                'type'          => 'label',
-                                'description'   => '* '.lang('TLD Lookup').'<br>* '.lang('Domain Registration').' <br>* '.lang('Existing Domain Importing').' <br>* '.lang('Get / Set Auto Renew Status').' <br>* '.lang('Get / Set DNS Records').' <br>* '.lang('Get / Set Nameserver Records').' <br>* '.lang('Get / Set Contact Information').' <br>* '.lang('Get / Set Registrar Lock').' <br>* '.lang('Initiate Domain Transfer').' <br>* '.lang('Automatically Renew Domain').' <br>* '.lang('Retrieve EPP Code'),
-                                'value'         => ''
-                                ),
-            lang('Actions') => array (
-                                'type'          => 'hidden',
-                                'description'   => lang('Current actions that are active for this plugin (when a domain isn\'t registered)'),
-                                'value'         => 'Register'
-                                ),
-            lang('Registered Actions') => array (
-                                'type'          => 'hidden',
-                                'description'   => lang('Current actions that are active for this plugin (when a domain is registered)'),
-                                'value'         => 'Renew (Renew Domain),DomainTransferWithPopup (Initiate Transfer),Cancel',
-                                ),
-            lang('Registered Actions For Customer') => array (
-                                'type'          => 'hidden',
-                                'description'   => lang('Current actions that are active for this plugin (when a domain is registered)'),
-                                'value'         => '',
-            )
-        );
+        $variables = [
+            lang('Plugin Name') => [
+                'type' => 'hidden',
+                'description' => lang('How CE sees this plugin (not to be confused with the Signup Name)'),
+                'value' => lang('Synergy Wholesale')
+            ],
+            lang('Reseller ID') => [
+                'type' => 'text',
+                'description' => lang('Enter your Reseller ID.'),
+                'value' => ''
+            ],
+            lang('API Key')  => [
+                'type' => 'password',
+                'description' => lang('Enter your API Key.'),
+                'value' => '',
+            ],
+            lang('Supported Features')  => [
+                'type' => 'label',
+                'description' => '* ' . lang('TLD Lookup') . '<br>* ' . lang('Domain Registration') . ' <br>* ' . lang('Existing Domain Importing') . ' <br>* ' . lang('Get / Set Auto Renew Status') . ' <br>* ' . lang('Get / Set DNS Records') . ' <br>* ' . lang('Get / Set Nameserver Records') . ' <br>* ' . lang('Get / Set Contact Information') . ' <br>* ' . lang('Get / Set Registrar Lock') . ' <br>* ' . lang('Initiate Domain Transfer') . ' <br>* ' . lang('Automatically Renew Domain') . ' <br>* ' . lang('Retrieve EPP Code'),
+                'value' => ''
+            ],
+            lang('Actions') => [
+                'type' => 'hidden',
+                'description' => lang('Current actions that are active for this plugin (when a domain isn\'t registered)'),
+                'value' => 'Register'
+            ],
+            lang('Registered Actions') => [
+                'type' => 'hidden',
+                'description' => lang('Current actions that are active for this plugin (when a domain is registered)'),
+                'value' => 'Renew (Renew Domain),DomainTransferWithPopup (Initiate Transfer),Cancel',
+            ],
+            lang('Registered Actions For Customer') => [
+                'type' => 'hidden',
+                'description' => lang('Current actions that are active for this plugin (when a domain is registered)'),
+                'value' => '',
+            ]
+        ];
 
         return $variables;
     }
 
-    function checkDomain($params)
+    public function checkDomain($params)
     {
         $tld = $params['tld'];
         $sld = $params['sld'];
@@ -83,7 +84,7 @@ class PluginSynergywholesale extends RegistrarPlugin
      *
      * @param array $params
      */
-    function doDomainTransferWithPopup($params)
+    public function doDomainTransferWithPopup($params)
     {
         $userPackage = new UserPackage($params['userPackageId']);
         $transferid = $this->initiateTransfer($this->buildTransferParams($userPackage, $params));
@@ -96,11 +97,11 @@ class PluginSynergywholesale extends RegistrarPlugin
      *
      * @param array $params
      */
-    function doRegister($params)
+    public function doRegister($params)
     {
         $userPackage = new UserPackage($params['userPackageId']);
         $orderid = $this->registerDomain($this->buildRegisterParams($userPackage, $params));
-        $userPackage->setCustomField("Registrar Order Id", $userPackage->getCustomField("Registrar").'-'.$orderid);
+        $userPackage->setCustomField("Registrar Order Id", $userPackage->getCustomField("Registrar") . '-' . $orderid);
         return $userPackage->getCustomField('Domain Name') . ' has been registered.';
     }
 
@@ -109,7 +110,7 @@ class PluginSynergywholesale extends RegistrarPlugin
      *
      * @param array $params
      */
-    function doRenew($params)
+    public function doRenew($params)
     {
         $userPackage = new UserPackage($params['userPackageId']);
         $orderid = $this->renewDomain($this->buildRenewParams($userPackage, $params));
@@ -117,7 +118,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         return $userPackage->getCustomField('Domain Name') . ' has been renewed.';
     }
 
-    function getTransferStatus($params)
+    public function getTransferStatus($params)
     {
         $response = $this->makeRequest('domainInfo', ['domainName' => $params['sld'] . '.' . $params['tld']]);
 
@@ -129,7 +130,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         return $response->domain_status;
     }
 
-    function initiateTransfer($params)
+    public function initiateTransfer($params)
     {
         if ($params['tld'] == 'uk') {
             throw new CE_Exception('.uk transfers must be handled manually and assigned to the tag "SYNERGY-AU"');
@@ -153,7 +154,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         return '';
     }
 
-    function renewDomain($params)
+    public function renewDomain($params)
     {
         $response = $this->makeRequest('renewDomain', [
             'domainName' => $params['sld'] . '.' . $params['tld'],
@@ -165,7 +166,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         }
     }
 
-    function registerDomain($params)
+    public function registerDomain($params)
     {
         $arguments = [
             'domainName' => $params['sld'] . '.' . $params['tld'],
@@ -240,7 +241,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         }
     }
 
-    function getContactInformation($params)
+    public function getContactInformation($params)
     {
         $response = $this->makeRequest('listContacts', ['domainName' => $params['sld'] . '.' . $params['tld']]);
 
@@ -268,10 +269,10 @@ class PluginSynergywholesale extends RegistrarPlugin
                 $info[$internalType]['Company'] = array($this->user->lang('Organization'), isset($response->$type->organisation) ? $response->$type->organisation : '');
                 $info[$internalType]['FirstName'] = array($this->user->lang('First Name'), $response->$type->firstname);
                 $info[$internalType]['LastName']  = array($this->user->lang('Last Name'), $response->$type->lastname);
-                $info[$internalType]['Address1']  = array($this->user->lang('Address').' 1', $response->$type->address1);
-                $info[$internalType]['Address2']  = array($this->user->lang('Address').' 2', isset($response->$type->address2) ? $response->$type->address2 : '');
+                $info[$internalType]['Address1']  = array($this->user->lang('Address') . ' 1', $response->$type->address1);
+                $info[$internalType]['Address2']  = array($this->user->lang('Address') . ' 2', isset($response->$type->address2) ? $response->$type->address2 : '');
                 $info[$internalType]['City']      = array($this->user->lang('City'), $response->$type->suburb);
-                $info[$internalType]['StateProvince']  = array($this->user->lang('Province').'/'.$this->user->lang('State'), $response->$type->state);
+                $info[$internalType]['StateProvince']  = array($this->user->lang('Province') . '/' . $this->user->lang('State'), $response->$type->state);
                 $info[$internalType]['Country']   = array($this->user->lang('Country'), $response->$type->country);
                 $info[$internalType]['PostalCode']  = array($this->user->lang('Postal Code'), $response->$type->postcode);
                 $info[$internalType]['EmailAddress']     = array($this->user->lang('E-mail'), $response->$type->email);
@@ -282,10 +283,10 @@ class PluginSynergywholesale extends RegistrarPlugin
                     'Company'  => array($this->user->lang('Organization'), ''),
                     'FirstName'         => array($this->user->lang('First Name'), ''),
                     'LastName'          => array($this->user->lang('Last Name'), ''),
-                    'Address1'          => array($this->user->lang('Address').' 1', ''),
-                    'Address2'          => array($this->user->lang('Address').' 2', ''),
+                    'Address1'          => array($this->user->lang('Address') . ' 1', ''),
+                    'Address2'          => array($this->user->lang('Address') . ' 2', ''),
                     'City'              => array($this->user->lang('City'), ''),
-                    'StateProvince'         => array($this->user->lang('Province').'/'.$this->user->lang('State'), ''),
+                    'StateProvince'         => array($this->user->lang('Province') . '/' . $this->user->lang('State'), ''),
                     'Country'           => array($this->user->lang('Country'), ''),
                     'PostalCode'        => array($this->user->lang('Postal Code'), ''),
                     'EmailAddress'      => array($this->user->lang('E-mail'), ''),
@@ -297,17 +298,18 @@ class PluginSynergywholesale extends RegistrarPlugin
         return $info;
     }
 
-    function setContactInformation($params)
+    public function setContactInformation($params)
     {
         $arguments['domainName'] = $params['sld'] . '.' . $params['tld'];
-        $arguments['registrant_firstname'] = $params['Registrant_First_Name'];
-        $arguments['registrant_lastname'] = $params['Registrant_Last_Name'];
-        $arguments['registrant_address'] = [$params['Registrant_Address_1'], $params['Registrant_Address_2']];
-        $arguments['registrant_email'] = $params['Registrant_Email_Address'];
+        $arguments['registrant_organisation'] = $params['Registrant_Company'];
+        $arguments['registrant_firstname'] = $params['Registrant_FirstName'];
+        $arguments['registrant_lastname'] = $params['Registrant_LastName'];
+        $arguments['registrant_address'] = [$params['Registrant_Address1'], $params['Registrant_Address2']];
+        $arguments['registrant_email'] = $params['Registrant_EmailAddress'];
         $arguments['registrant_suburb'] = $params['Registrant_City'];
-        $arguments['registrant_state'] = $params['Registrant_State_/_Province'];
+        $arguments['registrant_state'] = $params['Registrant_StateProvince'];
         $arguments['registrant_country'] = $params['Registrant_Country'];
-        $arguments['registrant_postcode'] = $params['Registrant_Postal_Code'];
+        $arguments['registrant_postcode'] = $params['Registrant_PostalCode'];
         $arguments['registrant_phone'] = $this->validatePhone($params['Registrant_Phone'], $params['Registrant_Country']);
         $arguments['registrant_fax']   = $this->validatePhone($params['Registrant_Fax'], $params['Registrant_Country']);
 
@@ -318,7 +320,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         return $this->user->lang('Contact Information updated successfully.');
     }
 
-    function getNameServers($params)
+    public function getNameServers($params)
     {
         $response = $this->makeRequest('domainInfo', ['domainName' => $params['sld'] . '.' . $params['tld']]);
         if ($response->status != 'OK') {
@@ -338,7 +340,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         return $data;
     }
 
-    function setNameServers($params)
+    public function setNameServers($params)
     {
         $arguments = [];
         $arguments['domainName'] = $params['sld'] . '.' . $params['tld'];
@@ -354,7 +356,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         $response = $this->makeRequest('updateNameServers', $arguments);
     }
 
-    function getGeneralInfo($params)
+    public function getGeneralInfo($params)
     {
         $data = [];
         $response = $this->makeRequest('domainInfo', ['domainName' => $params['sld'] . '.' . $params['tld']]);
@@ -377,7 +379,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         return $data;
     }
 
-    function fetchDomains($params)
+    public function fetchDomains($params)
     {
         $domains = [];
         $response = $this->makeRequest('listDomains');
@@ -397,7 +399,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         return array($domains, $metaData);
     }
 
-    function setAutorenew($params)
+    public function setAutorenew($params)
     {
         $command = 'disableAutoRenewal';
         if ($params['autorenew'] == 1) {
@@ -408,7 +410,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         return "Domain updated successfully";
     }
 
-    function getRegistrarLock($params)
+    public function getRegistrarLock($params)
     {
         $response = $this->makeRequest('domainInfo', ['domainName' => $params['sld'] . '.' . $params['tld']]);
         if ($response->domain_status == 'clientTransferProhibited') {
@@ -418,14 +420,14 @@ class PluginSynergywholesale extends RegistrarPlugin
         }
     }
 
-    function doSetRegistrarLock($params)
+    public function doSetRegistrarLock($params)
     {
         $userPackage = new UserPackage($params['userPackageId']);
         $this->setRegistrarLock($this->buildLockParams($userPackage, $params));
         return "Updated Registrar Lock.";
     }
 
-    function setRegistrarLock($params)
+    public function setRegistrarLock($params)
     {
         $response = $this->makeRequest('domainInfo', ['domainName' => $params['sld'] . '.' . $params['tld']]);
         if ($response->domain_status == 'clientTransferProhibited') {
@@ -435,7 +437,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         }
     }
 
-    function getDNS($params)
+    public function getDNS($params)
     {
         $response = $this->makeRequest('listDNSZone', ['domainName' => $params['sld'] . '.' . $params['tld']]);
         if ($response->status == 'ERR_LISTDNSZONE_FAILED') {
@@ -462,7 +464,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         ];
     }
 
-    function setDNS($params)
+    public function setDNS($params)
     {
         // No edit, so have to delete and re-add
         $response = $this->makeRequest('listDNSZone', ['domainName' => $params['sld'] . '.' . $params['tld']]);
@@ -493,7 +495,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         }
     }
 
-    function getEPPCode($params)
+    public function getEPPCode($params)
     {
         $response = $this->makeRequest('domainInfo', ['domainName' => $params['sld'] . '.' . $params['tld']]);
         if (!empty($response->domainPassword)) {
@@ -502,7 +504,7 @@ class PluginSynergywholesale extends RegistrarPlugin
         return '';
     }
 
-    function sendTransferKey($params)
+    public function sendTransferKey($params)
     {
     }
 
@@ -599,7 +601,7 @@ class PluginSynergywholesale extends RegistrarPlugin
 
             return $result;
         } catch (SoapFault $e) {
-            throw new CE_Exception("SynergyWholesale Plugin Error: ". $e->getMessage(), EXCEPTION_CODE_CONNECTION_ISSUE);
+            throw new CE_Exception("SynergyWholesale Plugin Error: " . $e->getMessage(), EXCEPTION_CODE_CONNECTION_ISSUE);
         }
     }
 }
