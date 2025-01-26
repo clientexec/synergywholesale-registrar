@@ -7,7 +7,7 @@ class PluginSynergywholesale extends RegistrarPlugin
     public $features = [
         'nameSuggest' => true,
         'importDomains' => true,
-        'importPrices' => false,
+        'importPrices' => true,
     ];
 
     private $dnsTypes = ['A', 'AAAA',  'MX', 'CNAME', 'TXT'];
@@ -53,6 +53,20 @@ class PluginSynergywholesale extends RegistrarPlugin
         ];
 
         return $variables;
+    }
+
+    public function getTLDsAndPrices($params)
+    {
+        $tlds = [];
+        $response = $this->makeRequest('getDomainPricing', [], []);
+        if ($response->status == 'OK') {
+            foreach ($response->pricing as $obj) {
+                $tlds[$obj->tld]['pricing']['register'] = $obj->register_1_year;
+                $tlds[$obj->tld]['pricing']['transfer'] = $obj->transfer;
+                $tlds[$obj->tld]['pricing']['renew'] = $obj->renew;
+            }
+        }
+        return $tlds;
     }
 
     public function checkDomain($params)
@@ -243,7 +257,16 @@ class PluginSynergywholesale extends RegistrarPlugin
 
     public function getContactInformation($params)
     {
-        $response = $this->makeRequest('listContacts', ['domainName' => $params['sld'] . '.' . $params['tld']]);
+        $domaininfo = $this->makeRequest('domainInfo', ['domainName' => $params['sld'] . '.' . $params['tld']]);
+        if ($domaininfo->status == 'OK') {
+            if($domaininfo->idProtect == 'Enabled') {
+                $response = $this->makeRequest('listProtectedContacts', ['domainName' => $params['sld'] . '.' . $params['tld']]);
+            } else {
+                $response = $this->makeRequest('listContacts', ['domainName' => $params['sld'] . '.' . $params['tld']]);
+            }
+        } else {
+            throw new CE_Exception($response->errorMessage);
+        }
 
         $info = [];
         foreach (array('registrant', 'billing', 'admin', 'tech') as $type) {
