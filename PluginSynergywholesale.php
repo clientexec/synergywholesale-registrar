@@ -257,7 +257,16 @@ class PluginSynergywholesale extends RegistrarPlugin
 
     public function getContactInformation($params)
     {
-        $response = $this->makeRequest('listContacts', ['domainName' => $params['sld'] . '.' . $params['tld']]);
+        $domaininfo = $this->makeRequest('domainInfo', ['domainName' => $params['sld'] . '.' . $params['tld']]);
+        if ($domaininfo->status == 'OK') {
+            if($domaininfo->idProtect == 'Disabled') {
+                $response = $this->makeRequest('listContacts', ['domainName' => $params['sld'] . '.' . $params['tld']]);
+            } else {
+                $response = $this->makeRequest('listProtectedContacts', ['domainName' => $params['sld'] . '.' . $params['tld']]);
+            }
+        } else {
+            throw new CE_Exception($response->errorMessage);
+        }
 
         $info = [];
         foreach (array('registrant', 'billing', 'admin', 'tech') as $type) {
