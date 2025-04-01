@@ -360,6 +360,10 @@ class PluginSynergywholesale extends RegistrarPlugin
     {
         $data = [];
         $response = $this->makeRequest('domainInfo', ['domainName' => $params['sld'] . '.' . $params['tld']]);
+        if ($response->status == 'ERR_DOMAININFO_FAILED' && $response->errorMessage == 'Domain Info Failed - Unable to retrieve domain id') {
+            $data['registrationstatus'] = 'RGP';
+            return $data;
+        }
 
         $data['id'] = $response->domainRoid;
         $data['domain'] = $response->domainName;
